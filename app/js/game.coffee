@@ -49,4 +49,4 @@ $ ->
       $(@).text mark
       $(@).addClass mark
       isX = !isX
-    checkForWin()
+      checkForWin()
