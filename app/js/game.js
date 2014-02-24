@@ -3,13 +3,20 @@
   var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   $(function() {
-    var checkForWin, clearBoard, cnt, resetBoard;
-    cnt = 0;
+    var WIN_PATTERNS, checkForWin, clearBoard, counter, getCellNumber, isEmpty, markCell, resetBoard;
+    counter = 0;
+    WIN_PATTERNS = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+    isEmpty = function(cell) {
+      return !$.trim(cell.text());
+    };
+    getCellNumber = function(cell) {
+      return parseInt(cell.attr('id').replace(/^cell\-/, ""));
+    };
     clearBoard = function() {
       $('.board-cell').text('');
       $('.board-cell').removeClass('o');
       $('.board-cell').removeClass('x');
-      return cnt = 0;
+      return counter = 0;
     };
     resetBoard = function() {
       clearBoard();
@@ -17,19 +24,16 @@
       return $('#start-game').fadeIn(500);
     };
     checkForWin = function(cell) {
-      var board, p, patterns, patternsToTest, win, _i, _len, _ref, _ref1;
-      console.log("Checking for win for cell " + cell);
+      var board, p, patternsToTest, win, _i, _len, _ref, _ref1;
+      win = '';
       board = ($('.board-cell').map(function(idx, el) {
         return $(el).text();
       })).get();
-      win = '';
-      patterns = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-      patternsToTest = patterns.filter(function(p) {
-        return __indexOf.call(p, cell) >= 0;
+      patternsToTest = WIN_PATTERNS.filter(function(pattern) {
+        return __indexOf.call(pattern, cell) >= 0;
       });
       for (_i = 0, _len = patternsToTest.length; _i < _len; _i++) {
         p = patternsToTest[_i];
-        console.log("Running pattern " + p);
         if ((('' !== (_ref1 = board[p[0]]) && _ref1 === (_ref = board[p[1]])) && _ref === board[p[2]])) {
           win = board[p[0]];
         }
@@ -39,6 +43,14 @@
         return resetBoard();
       }
     };
+    markCell = function(cell, mark) {
+      cell.text(mark);
+      cell.addClass(mark);
+      counter += 1;
+      if (counter > 4) {
+        return checkForWin(getCellNumber(cell));
+      }
+    };
     $('#start-game').on('click', function(e) {
       clearBoard();
       $(this).hide();
@@ -46,15 +58,10 @@
     });
     return $('.board-cell').on('click', function(e) {
       var cell, mark;
-      mark = cnt % 2 === 0 ? 'x' : 'o';
-      if (($(this).text().replace(/^\s+|\s+$/g, "")) === '') {
-        $(this).text(mark);
-        $(this).addClass(mark);
-        cnt += 1;
-        cell = $(this).attr('id').replace(/^cell\-/, "");
-        if (cnt > 4) {
-          return checkForWin(cell);
-        }
+      cell = $(this);
+      mark = counter % 2 === 0 ? 'x' : 'o';
+      if (isEmpty(cell)) {
+        return markCell(cell, mark);
       }
     });
   });
