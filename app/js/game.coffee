@@ -53,7 +53,7 @@ $ ->
 
     patternsToTest = patternsToTest.filter (p) ->
       row = "#{board[p[0]]}#{board[p[1]]}#{board[p[2]]}"
-      win = row == 'xxx' || row == 'ooo'
+      win ||= (row == 'xxx' || row == 'ooo')
       not rowUnwinnable(row)
 
     if win

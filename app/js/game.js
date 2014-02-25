@@ -46,7 +46,7 @@
       patternsToTest = patternsToTest.filter(function(p) {
         var row;
         row = "" + board[p[0]] + board[p[1]] + board[p[2]];
-        win = row === 'xxx' || row === 'ooo';
+        win || (win = row === 'xxx' || row === 'ooo');
         return !rowUnwinnable(row);
       });
       if (win) {
