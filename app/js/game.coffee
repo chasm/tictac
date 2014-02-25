@@ -13,10 +13,10 @@ $ ->
   ]
 
   isEmpty = (cell) ->
-    !$.trim(cell.text())
+    !cell.text()
 
   getCellNumber = (cell) ->
-    parseInt cell.attr('id').replace( /^cell\-/, "" )
+    parseInt cell.data('index')
 
   clearBoard = ->
     $('.board-cell').text('')
@@ -24,7 +24,7 @@ $ ->
     $('.board-cell').removeClass('x')
     counter = 0
 
-  resetBoard = ->
+  resetGame = ->
     clearBoard()
     $('#gameboard').hide()
     $('#start-game').fadeIn(500)
@@ -40,7 +40,7 @@ $ ->
 
     if win != ''
       alert win + ' won!'
-      resetBoard()
+      resetGame()
 
   markCell = (cell, mark) ->
     cell.text mark

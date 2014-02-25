@@ -3,14 +3,14 @@
   var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   $(function() {
-    var WIN_PATTERNS, checkForWin, clearBoard, counter, getCellNumber, isEmpty, markCell, resetBoard;
+    var WIN_PATTERNS, checkForWin, clearBoard, counter, getCellNumber, isEmpty, markCell, resetGame;
     counter = 0;
     WIN_PATTERNS = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
     isEmpty = function(cell) {
-      return !$.trim(cell.text());
+      return !cell.text();
     };
     getCellNumber = function(cell) {
-      return parseInt(cell.attr('id').replace(/^cell\-/, ""));
+      return parseInt(cell.data('index'));
     };
     clearBoard = function() {
       $('.board-cell').text('');
@@ -18,7 +18,7 @@
       $('.board-cell').removeClass('x');
       return counter = 0;
     };
-    resetBoard = function() {
+    resetGame = function() {
       clearBoard();
       $('#gameboard').hide();
       return $('#start-game').fadeIn(500);
@@ -40,7 +40,7 @@
       }
       if (win !== '') {
         alert(win + ' won!');
-        return resetBoard();
+        return resetGame();
       }
     };
     markCell = function(cell, mark) {
