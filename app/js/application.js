@@ -42,7 +42,7 @@
 
     BoardCtrl.prototype.announceWinner = function() {
       var winner;
-      winner = this.$scope.cells % 2 === 0 ? 'o' : 'x';
+      winner = Object.keys(this.$scope.cells).length % 2 === 0 ? 'o' : 'x';
       return alert("" + winner + " wins!");
     };
 
