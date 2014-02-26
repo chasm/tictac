@@ -26,11 +26,11 @@ $ ->
     $('.board-cell').text('')
     $('.board-cell').removeClass('o')
     $('.board-cell').removeClass('x')
+    patternsToTest = WIN_PATTERNS.filter -> true
     counter = 0
 
   resetGame = ->
     clearBoard()
-    patternsToTest = WIN_PATTERNS.filter -> true
     $('#gameboard').hide()
     $('#start-game').fadeIn(500)
 
@@ -71,13 +71,13 @@ $ ->
     counter += 1
     checkForWin( getCellNumber(cell) ) if counter > 4
 
-  # Handle start game clicks
+  # Start the game
   $('#start-game').on 'click', (e) ->
     clearBoard()
     $(@).hide()
     $('#gameboard').fadeIn(500)
 
-  # Handle board cell clicks
+  # Make a move
   $('.board-cell').on 'click', (e) ->
     cell = $(@)
     mark = getTurn(counter)
