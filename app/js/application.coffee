@@ -26,7 +26,7 @@ class BoardCtrl
     @resetBoard()
 
   getPatterns: =>
-    @patternsToTest = @WIN_PATTERNS.filter -> true
+    @patternsToTest = @WIN_PATTERNS #.filter -> true
 
   getRow: (pattern) =>
     c = @cells
@@ -104,6 +104,21 @@ class BoardCtrl
     (@hasTwoOs(row) and @movesRemaining('o') < 1) or
     (@isEmptyRow(row) and @movesRemaining() < 5))
 
+  getWinningCell: (row, player, winOnThisMove) ->
+    o = /oo(\d)|o(\d)o|(\d)oo/i
+    x = /xx(\d)|x(\d)x|(\d)xx/i
+    m = row.match (if player == 'x' then x else o)
+    winOnThisMove.push m[1] if !!m
+
+  hintAtBestMoves: () =>
+    winOnThisMove = []
+
+    for pattern in @WIN_PATTERNS
+      row = @getRow(pattern)
+      @getWinningCell(row, @player(), winOnThisMove)
+
+    console.log winOnThisMove
+
   parseBoard: =>
     winningPattern = false
 
@@ -116,6 +131,8 @@ class BoardCtrl
       @announceWinner(winningPattern)
     else if @gameUnwinnable()
       @announceTie()
+    else
+      @hintAtBestMoves()
 
   mark: (@$event) =>
     cell = @$event.target.dataset.index

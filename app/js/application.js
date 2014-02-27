@@ -15,6 +15,7 @@
       this.WIN_PATTERNS = WIN_PATTERNS;
       this.mark = __bind(this.mark, this);
       this.parseBoard = __bind(this.parseBoard, this);
+      this.hintAtBestMoves = __bind(this.hintAtBestMoves, this);
       this.rowStillWinnable = __bind(this.rowStillWinnable, this);
       this.announceTie = __bind(this.announceTie, this);
       this.announceWinner = __bind(this.announceWinner, this);
@@ -38,9 +39,7 @@
     };
 
     BoardCtrl.prototype.getPatterns = function() {
-      return this.patternsToTest = this.WIN_PATTERNS.filter(function() {
-        return true;
-      });
+      return this.patternsToTest = this.WIN_PATTERNS;
     };
 
     BoardCtrl.prototype.getRow = function(pattern) {
@@ -143,6 +142,28 @@
       return !(this.isMixedRow(row) || (this.hasOneX(row) && this.movesRemaining('x') < 2) || (this.hasTwoXs(row) && this.movesRemaining('x') < 1) || (this.hasOneO(row) && this.movesRemaining('o') < 2) || (this.hasTwoOs(row) && this.movesRemaining('o') < 1) || (this.isEmptyRow(row) && this.movesRemaining() < 5));
     };
 
+    BoardCtrl.prototype.getWinningCell = function(row, player, winOnThisMove) {
+      var m, o, x;
+      o = /oo(\d)|o(\d)o|(\d)oo/i;
+      x = /xx(\d)|x(\d)x|(\d)xx/i;
+      m = row.match((player === 'x' ? x : o));
+      if (!!m) {
+        return winOnThisMove.push(m[1]);
+      }
+    };
+
+    BoardCtrl.prototype.hintAtBestMoves = function() {
+      var pattern, row, winOnThisMove, _i, _len, _ref;
+      winOnThisMove = [];
+      _ref = this.WIN_PATTERNS;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        pattern = _ref[_i];
+        row = this.getRow(pattern);
+        this.getWinningCell(row, this.player(), winOnThisMove);
+      }
+      return console.log(winOnThisMove);
+    };
+
     BoardCtrl.prototype.parseBoard = function() {
       var winningPattern;
       winningPattern = false;
@@ -160,6 +181,8 @@
         return this.announceWinner(winningPattern);
       } else if (this.gameUnwinnable()) {
         return this.announceTie();
+      } else {
+        return this.hintAtBestMoves();
       }
     };
 
