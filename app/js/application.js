@@ -92,7 +92,7 @@
     };
 
     BoardCtrl.prototype.isMixedRow = function(row) {
-      return !!row.match(/ox\d|o\dx|\dox|xo\d|x\do|\dxo/i);
+      return !!row.match(/ox\d|o\dx|\dox|xo\d|x\do|\dxo|xxo|xox|oxx|oox|oxo|xoo/i);
     };
 
     BoardCtrl.prototype.hasOneX = function(row) {
