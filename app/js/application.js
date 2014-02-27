@@ -16,8 +16,11 @@
       this.Settings = Settings;
       this.mark = __bind(this.mark, this);
       this.parseBoard = __bind(this.parseBoard, this);
+      this.rowStillWinnable = __bind(this.rowStillWinnable, this);
+      this.fewerMoves = __bind(this.fewerMoves, this);
       this.announceWinner = __bind(this.announceWinner, this);
       this.player = __bind(this.player, this);
+      this.movesRemaining = __bind(this.movesRemaining, this);
       this.numberOfMoves = __bind(this.numberOfMoves, this);
       this.resetBoard = __bind(this.resetBoard, this);
       this.getRow = __bind(this.getRow, this);
@@ -54,6 +57,18 @@
       return Object.keys(this.$scope.cells).length;
     };
 
+    BoardCtrl.prototype.movesRemaining = function(player) {
+      var totalMoves;
+      totalMoves = 9 - this.numberOfMoves();
+      if (player === 'x') {
+        return Math.ceil(totalMoves / 2);
+      } else if (player === 'o') {
+        return Math.floor(totalMoves / 2);
+      } else {
+        return totalMoves;
+      }
+    };
+
     BoardCtrl.prototype.player = function(options) {
       var moves;
       options || (options = {
@@ -75,17 +90,52 @@
       return alert("" + winner + " wins!");
     };
 
+    BoardCtrl.prototype.isMixedRow = function(row) {
+      return !!row.match(/o+x+|x+o+/i);
+    };
+
+    BoardCtrl.prototype.hasOneX = function(row) {
+      return !!row.match(/x\d\d|\dx\d|\d\dx/i);
+    };
+
+    BoardCtrl.prototype.hasTwoXs = function(row) {
+      return !!row.match(/xx\d|x\dx|\dxx/i);
+    };
+
+    BoardCtrl.prototype.hasOneO = function(row) {
+      return !!row.match(/o\d\d|\do\d|\d\do/i);
+    };
+
+    BoardCtrl.prototype.hasTwoOs = function(row) {
+      return !!row.match(/oo\d|o\do|\doo/i);
+    };
+
+    BoardCtrl.prototype.isEmptyRow = function(row) {
+      console.log("isEmptyRow?", !!row.match(/\d\d\d/i));
+      return !!row.match(/\d\d\d/i);
+    };
+
+    BoardCtrl.prototype.fewerMoves = function(moves, player) {
+      return this.movesRemaining(player) < moves;
+    };
+
+    BoardCtrl.prototype.rowStillWinnable = function(row) {
+      console.log("moves remaining: ", this.movesRemaining());
+      return this.isMixedRow(row) || (this.hasOneX(row) && this.fewerMoves(2, 'x')) || (this.hasTwoXs(row) && this.fewerMoves(1, 'x')) || (this.hasOneO(row) && this.fewerMoves(2, 'o')) || (this.hasTwoOs(row) && this.fewerMoves(1, 'o')) || (this.isEmptyRow(row) && this.movesRemaining() < 5);
+    };
+
     BoardCtrl.prototype.parseBoard = function() {
-      return this.$scope.patternsToTest = this.$scope.patternsToTest.filter((function(_this) {
+      this.$scope.patternsToTest = this.$scope.patternsToTest.filter((function(_this) {
         return function(pattern) {
           var row;
           row = _this.getRow(pattern);
           if (_this.someoneWon(row)) {
             _this.announceWinner();
           }
-          return true;
+          return !_this.rowStillWinnable(row);
         };
       })(this));
+      return console.log(this.$scope.patternsToTest);
     };
 
     BoardCtrl.prototype.mark = function($event) {

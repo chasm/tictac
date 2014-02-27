@@ -39,6 +39,16 @@ class BoardCtrl
   numberOfMoves: =>
     Object.keys(@$scope.cells).length
 
+  movesRemaining: (player) =>
+    totalMoves = 9 - @numberOfMoves()
+
+    if player == 'x'
+      Math.ceil(totalMoves / 2)
+    else if player == 'o'
+      Math.floor(totalMoves / 2)
+    else
+      totalMoves
+
   player: (options) =>
     options ||= whoMovedLast: false
     moves = @numberOfMoves() - (if options.whoMovedLast then 1 else 0)
@@ -48,11 +58,50 @@ class BoardCtrl
     winner = @player(whoMovedLast: true)
     alert "#{winner} wins!"
 
+  isMixedRow: (row) ->
+    # console.log "isMixedRow? ", !!row.match(/o+x+|x+o+/i)
+    !!row.match(/o+x+|x+o+/i)
+
+  hasOneX: (row) ->
+    # console.log "hasOneX?", !!row.match(/x\d\d|\dx\d|\d\dx/i)
+    !!row.match(/x\d\d|\dx\d|\d\dx/i)
+
+  hasTwoXs: (row) ->
+    # console.log "hasTwoXs?", !!row.match(/xx\d|x\dx|\dxx/i)
+    !!row.match(/xx\d|x\dx|\dxx/i)
+
+  hasOneO: (row) ->
+    # console.log "hasOneO?", !!row.match(/o\d\d|\do\d|\d\do/i)
+    !!row.match(/o\d\d|\do\d|\d\do/i)
+
+  hasTwoOs: (row) ->
+    # console.log "hasTwoOs?", !!row.match(/oo\d|o\do|\doo/i)
+    !!row.match(/oo\d|o\do|\doo/i)
+
+  isEmptyRow: (row) ->
+    # console.log "isEmptyRow?", !!row.match(/\d\d\d/i)
+    !!row.match(/\d\d\d/i)
+
+  fewerMoves: (moves, player) =>
+    @movesRemaining(player) < moves
+
+  rowStillWinnable: (row) =>
+    if isEmptyRow(row)
+      console.log "Empty row!", row
+      console.log "moves remaining: ", @movesRemaining()
+    @isMixedRow(row) or
+    (@hasOneX(row) and @fewerMoves(2, 'x')) or
+    (@hasTwoXs(row) and @fewerMoves(1, 'x')) or
+    (@hasOneO(row) and @fewerMoves(2, 'o')) or
+    (@hasTwoOs(row) and @fewerMoves(1, 'o')) or
+    (@isEmptyRow(row) and @movesRemaining() < 5)
+
   parseBoard: =>
     @$scope.patternsToTest = @$scope.patternsToTest.filter (pattern) =>
       row = @getRow(pattern)
       @announceWinner() if @someoneWon(row)
-      true
+      not @rowStillWinnable(row)
+    console.log @$scope.patternsToTest
 
   mark: (@$event) =>
     cell = @$event.target.dataset.index
