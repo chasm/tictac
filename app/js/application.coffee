@@ -23,6 +23,7 @@ class BoardCtrl
 
   startGame: =>
     @$scope.gameOn = true
+    @$scope.currentPlayer = @player()
     @resetBoard()
 
   getPatterns: =>
@@ -42,6 +43,7 @@ class BoardCtrl
     @$scope.theWinnerIs = false
     @$scope.cats = false
     @cells = @$scope.cells = {}
+    @$scope.currentPlayer = @player()
     @getPatterns()
 
   numberOfMoves: =>
@@ -118,6 +120,7 @@ class BoardCtrl
       cell = @$event.target.dataset.index
       @cells[cell] = @player()
       @parseBoard()
+      @$scope.currentPlayer = @player()
 
 
 BoardCtrl.$inject = ["$scope", "WIN_PATTERNS"]

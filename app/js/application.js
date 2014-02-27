@@ -33,6 +33,7 @@
 
     BoardCtrl.prototype.startGame = function() {
       this.$scope.gameOn = true;
+      this.$scope.currentPlayer = this.player();
       return this.resetBoard();
     };
 
@@ -59,6 +60,7 @@
       this.$scope.theWinnerIs = false;
       this.$scope.cats = false;
       this.cells = this.$scope.cells = {};
+      this.$scope.currentPlayer = this.player();
       return this.getPatterns();
     };
 
@@ -161,7 +163,8 @@
       if (this.$scope.gameOn) {
         cell = this.$event.target.dataset.index;
         this.cells[cell] = this.player();
-        return this.parseBoard();
+        this.parseBoard();
+        return this.$scope.currentPlayer = this.player();
       }
     };
 
