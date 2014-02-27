@@ -39,6 +39,8 @@ class BoardCtrl
     'xxx' == row || 'ooo' == row
 
   resetBoard: =>
+    @$scope.theWinnerIs = false
+    @$scope.cats = false
     @cells = @$scope.cells = {}
     @getPatterns()
 
@@ -83,11 +85,11 @@ class BoardCtrl
 
   announceWinner: =>
     winner = @player(whoMovedLast: true)
-    alert "#{winner} wins!"
+    @$scope.theWinnerIs = winner
     @$scope.gameOn = false
 
   announceTie: =>
-    alert "It's a tie!"
+    @$scope.cats = true
     @$scope.gameOn = false
 
   rowStillWinnable: (row) =>
@@ -112,9 +114,10 @@ class BoardCtrl
       @announceTie()
 
   mark: (@$event) =>
-    cell = @$event.target.dataset.index
-    @cells[cell] = @player()
-    @parseBoard()
+    if @$scope.gameOn
+      cell = @$event.target.dataset.index
+      @cells[cell] = @player()
+      @parseBoard()
 
 
 BoardCtrl.$inject = ["$scope", "WIN_PATTERNS"]
