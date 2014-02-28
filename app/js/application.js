@@ -16,6 +16,7 @@
       this.mark = __bind(this.mark, this);
       this.parseBoard = __bind(this.parseBoard, this);
       this.hintAtBestMoves = __bind(this.hintAtBestMoves, this);
+      this.flashCells = __bind(this.flashCells, this);
       this.rowStillWinnable = __bind(this.rowStillWinnable, this);
       this.announceTie = __bind(this.announceTie, this);
       this.announceWinner = __bind(this.announceWinner, this);
@@ -31,6 +32,7 @@
       this.$scope.mark = this.mark;
       this.$scope.startGame = this.startGame;
       this.$scope.gameOn = false;
+      this.$scope.animateIt = this.animateIt;
     }
 
     BoardCtrl.prototype.startGame = function() {
@@ -43,12 +45,7 @@
     };
 
     BoardCtrl.prototype.getRow = function(pattern) {
-      var c, c0, c1, c2;
-      c = this.cells;
-      c0 = c[pattern[0]] || pattern[0];
-      c1 = c[pattern[1]] || pattern[1];
-      c2 = c[pattern[2]] || pattern[2];
-      return "" + c0 + c1 + c2;
+      return ("" + (this.cells[pattern[0]] || pattern[0])) + ("" + (this.cells[pattern[1]] || pattern[1])) + ("" + (this.cells[pattern[2]] || pattern[2]));
     };
 
     BoardCtrl.prototype.someoneWon = function(row) {
@@ -142,26 +139,79 @@
       return !(this.isMixedRow(row) || (this.hasOneX(row) && this.movesRemaining('x') < 2) || (this.hasTwoXs(row) && this.movesRemaining('x') < 1) || (this.hasOneO(row) && this.movesRemaining('o') < 2) || (this.hasTwoOs(row) && this.movesRemaining('o') < 1) || (this.isEmptyRow(row) && this.movesRemaining() < 5));
     };
 
-    BoardCtrl.prototype.getWinningCell = function(row, player, winOnThisMove) {
+    BoardCtrl.prototype.getWinningCell = function(row, player, winningMoves) {
       var m, o, x;
       o = /oo(\d)|o(\d)o|(\d)oo/i;
       x = /xx(\d)|x(\d)x|(\d)xx/i;
       m = row.match((player === 'x' ? x : o));
       if (!!m) {
-        return winOnThisMove.push(m[1]);
+        return winningMoves.push(m[1] || m[2] || m[3]);
       }
     };
 
+    BoardCtrl.prototype.getPossibleWins = function(row, player, possibleWins) {
+      var i, m, o, x, _i, _len, _name, _ref, _results;
+      o = /o(\d)(\d)|(\d)o(\d)|(\d)(\d)o/i;
+      x = /x(\d)(\d)|(\d)x(\d)|(\d)(\d)x/i;
+      m = row.match((player === 'x' ? x : o));
+      if (!!m) {
+        _ref = [1, 2, 3, 4, 5, 6];
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          i = _ref[_i];
+          if (m[i]) {
+            possibleWins[_name = m[i]] || (possibleWins[_name] = 0);
+            _results.push(possibleWins[m[i]] += 1);
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      }
+    };
+
+    BoardCtrl.prototype.flashCells = function(cells) {
+      var cell, color, _i, _len, _results;
+      color = this.player() === 'x' ? "hsla( 208, 55.9%, 44.5%, 0.7 )" : "hsla( 120, 39.6%, 46.0%, 0.7 )";
+      _results = [];
+      for (_i = 0, _len = cells.length; _i < _len; _i++) {
+        cell = cells[_i];
+        jQuery("#cell-" + cell).css({
+          backgroundColor: color
+        });
+        _results.push(jQuery("#cell-" + cell).animate({
+          backgroundColor: "white"
+        }, 2000));
+      }
+      return _results;
+    };
+
     BoardCtrl.prototype.hintAtBestMoves = function() {
-      var pattern, row, winOnThisMove, _i, _len, _ref;
+      var blockLoss, blockWinInTwo, forceWinInTwo, pattern, row, winOnThisMove, _i, _len, _ref;
       winOnThisMove = [];
-      _ref = this.WIN_PATTERNS;
+      blockLoss = [];
+      forceWinInTwo = {};
+      blockWinInTwo = {};
+      _ref = this.patternsToTest;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         pattern = _ref[_i];
         row = this.getRow(pattern);
         this.getWinningCell(row, this.player(), winOnThisMove);
+        this.getWinningCell(row, this.player({
+          whoMovedLast: true
+        }), blockLoss);
+        this.getPossibleWins(row, this.player(), forceWinInTwo);
+        this.getPossibleWins(row, this.player({
+          whoMovedLast: true
+        }), blockWinInTwo);
       }
-      return console.log(winOnThisMove);
+      forceWinInTwo = Object.keys(forceWinInTwo).filter(function(k) {
+        return forceWinInTwo[k] > 1;
+      });
+      blockWinInTwo = Object.keys(blockWinInTwo).filter(function(k) {
+        return blockWinInTwo[k] > 1;
+      });
+      return this.flashCells(winOnThisMove.length > 0 ? winOnThisMove : blockLoss > 0 ? blockLoss : forceWinInTwo.length > 0 ? forceWinInTwo : blockWinInTwo.length > 0 ? blockWinInTwo : []);
     };
 
     BoardCtrl.prototype.parseBoard = function() {

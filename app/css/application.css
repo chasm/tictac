@@ -32,6 +32,18 @@ h1 {
   text-align: center;
 }
 
+.highlight-enter {
+  background-color: hsla( 40, 64.7%, 50.0%, 1 );
+  -webkit-transition: all 3s ease;
+  -moz-transition: all 3s ease;
+  -ms-transition: all 3s ease;
+  -o-transition: all 3s ease;
+  transition: all 3s ease;
+}
+.highlight-enter.highlight-enter-active {
+  opacity: 0;
+}
+
 .tic, .tac, .toe { background-color: hsla( 0, 0.0%, 100.0%, 1 ); }
 .tic { color: hsla(   2,  64.7%,  50.0%, 1 ); }
 .tac { color: hsla( 120,  39.6%,  46.0%, 1 ); }
