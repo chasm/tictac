@@ -64,22 +64,22 @@ class BoardCtrl
     if moves % 2 == 0 then 'x' else 'o'
 
   isMixedRow: (row) ->
-    !!row.match(/o+\d?x+|x+\d?o+/i)
+    row.match(/o+\d?x+|x+\d?o+/i)?
 
   hasOneX: (row) ->
-    !!row.match(/x\d\d|\dx\d|\d\dx/i)
+    row.match(/x\d\d|\dx\d|\d\dx/i)?
 
   hasTwoXs: (row) ->
-    !!row.match(/xx\d|x\dx|\dxx/i)
+    row.match(/xx\d|x\dx|\dxx/i)?
 
   hasOneO: (row) ->
-    !!row.match(/o\d\d|\do\d|\d\do/i)
+    row.match(/o\d\d|\do\d|\d\do/i)?
 
   hasTwoOs: (row) ->
-    !!row.match(/oo\d|o\do|\doo/i)
+    row.match(/oo\d|o\do|\doo/i)?
 
   isEmptyRow: (row) ->
-    !!row.match(/\d\d\d/i)
+    row.match(/\d\d\d/i)?
 
   gameUnwinnable: =>
     @patternsToTest.length < 1
@@ -107,14 +107,14 @@ class BoardCtrl
     o = /oo(\d)|o(\d)o|(\d)oo/i
     x = /xx(\d)|x(\d)x|(\d)xx/i
     m = row.match (if player == 'x' then x else o)
-    if !!m
+    if m?
       winningMoves.push m[1] || m[2] || m[3]
 
   getPossibleWins: (row, player, possibleWins) ->
     o = /o(\d)(\d)|(\d)o(\d)|(\d)(\d)o/i
     x = /x(\d)(\d)|(\d)x(\d)|(\d)(\d)x/i
     m = row.match (if player == 'x' then x else o)
-    if !!m
+    if m?
       for i in [1,2,3,4,5,6]
         if m[i]
           possibleWins[m[i]] ||= 0
