@@ -91,27 +91,27 @@
     };
 
     BoardCtrl.prototype.isMixedRow = function(row) {
-      return !!row.match(/o+\d?x+|x+\d?o+/i);
+      return row.match(/o+\d?x+|x+\d?o+/i) != null;
     };
 
     BoardCtrl.prototype.hasOneX = function(row) {
-      return !!row.match(/x\d\d|\dx\d|\d\dx/i);
+      return row.match(/x\d\d|\dx\d|\d\dx/i) != null;
     };
 
     BoardCtrl.prototype.hasTwoXs = function(row) {
-      return !!row.match(/xx\d|x\dx|\dxx/i);
+      return row.match(/xx\d|x\dx|\dxx/i) != null;
     };
 
     BoardCtrl.prototype.hasOneO = function(row) {
-      return !!row.match(/o\d\d|\do\d|\d\do/i);
+      return row.match(/o\d\d|\do\d|\d\do/i) != null;
     };
 
     BoardCtrl.prototype.hasTwoOs = function(row) {
-      return !!row.match(/oo\d|o\do|\doo/i);
+      return row.match(/oo\d|o\do|\doo/i) != null;
     };
 
     BoardCtrl.prototype.isEmptyRow = function(row) {
-      return !!row.match(/\d\d\d/i);
+      return row.match(/\d\d\d/i) != null;
     };
 
     BoardCtrl.prototype.gameUnwinnable = function() {
@@ -144,7 +144,7 @@
       o = /oo(\d)|o(\d)o|(\d)oo/i;
       x = /xx(\d)|x(\d)x|(\d)xx/i;
       m = row.match((player === 'x' ? x : o));
-      if (!!m) {
+      if (m != null) {
         return winningMoves.push(m[1] || m[2] || m[3]);
       }
     };
@@ -154,7 +154,7 @@
       o = /o(\d)(\d)|(\d)o(\d)|(\d)(\d)o/i;
       x = /x(\d)(\d)|(\d)x(\d)|(\d)(\d)x/i;
       m = row.match((player === 'x' ? x : o));
-      if (!!m) {
+      if (m != null) {
         _ref = [1, 2, 3, 4, 5, 6];
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -172,14 +172,13 @@
 
     BoardCtrl.prototype.flashCells = function(cells) {
       var cell, color, _i, _len, _results;
-      color = this.player() === 'x' ? "hsla( 208, 55.9%, 44.5%, 0.7 )" : "hsla( 120, 39.6%, 46.0%, 0.7 )";
+      color = jQuery("." + (this.player())).css('color');
       _results = [];
       for (_i = 0, _len = cells.length; _i < _len; _i++) {
         cell = cells[_i];
-        jQuery("#cell-" + cell).css({
+        _results.push(jQuery("#cell-" + cell).css({
           backgroundColor: color
-        });
-        _results.push(jQuery("#cell-" + cell).animate({
+        }).animate({
           backgroundColor: "white"
         }, 2000));
       }
@@ -187,7 +186,7 @@
     };
 
     BoardCtrl.prototype.hintAtBestMoves = function() {
-      var blockLoss, blockWinInTwo, forceWinInTwo, pattern, row, winOnThisMove, _i, _len, _ref;
+      var avoidSplit, blockLoss, blockWinInTwo, forceWinInTwo, pattern, row, winOnThisMove, _i, _len, _ref;
       winOnThisMove = [];
       blockLoss = [];
       forceWinInTwo = {};
@@ -205,13 +204,18 @@
           whoMovedLast: true
         }), blockWinInTwo);
       }
+      avoidSplit = Object.keys(forceWinInTwo).filter(function(k) {
+        return forceWinInTwo[k] === 1;
+      });
       forceWinInTwo = Object.keys(forceWinInTwo).filter(function(k) {
         return forceWinInTwo[k] > 1;
       });
       blockWinInTwo = Object.keys(blockWinInTwo).filter(function(k) {
         return blockWinInTwo[k] > 1;
       });
-      return this.flashCells(winOnThisMove.length > 0 ? winOnThisMove : blockLoss > 0 ? blockLoss : forceWinInTwo.length > 0 ? forceWinInTwo : blockWinInTwo.length > 0 ? blockWinInTwo : []);
+      return this.flashCells(winOnThisMove.length > 0 ? winOnThisMove : blockLoss > 0 ? blockLoss : forceWinInTwo.length > 0 ? forceWinInTwo : blockWinInTwo.length > 1 ? avoidSplit.filter(function(c) {
+        return !(__indexOf.call(blockWinInTwo, c) >= 0);
+      }) : blockWinInTwo.length > 0 ? blockWinInTwo : []);
     };
 
     BoardCtrl.prototype.parseBoard = function() {

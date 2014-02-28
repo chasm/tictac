@@ -121,13 +121,10 @@ class BoardCtrl
           possibleWins[m[i]] += 1
 
   flashCells: (cells) =>
-    color = if @player() == 'x'
-      "hsla( 208, 55.9%, 44.5%, 0.7 )"
-    else "hsla( 120, 39.6%, 46.0%, 0.7 )"
+    color = jQuery(".#{@player()}").css('color')
 
     for cell in cells
-      jQuery("#cell-#{cell}").css backgroundColor: color
-      jQuery("#cell-#{cell}").animate backgroundColor: "white", 2000
+      jQuery("#cell-#{cell}").css( backgroundColor: color ).animate backgroundColor: "white", 2000
 
   hintAtBestMoves: () =>
     winOnThisMove = []
@@ -142,6 +139,7 @@ class BoardCtrl
       @getPossibleWins(row, @player(), forceWinInTwo)
       @getPossibleWins(row, @player(whoMovedLast: true), blockWinInTwo)
 
+    avoidSplit    = Object.keys(forceWinInTwo).filter (k) -> forceWinInTwo[k] == 1
     forceWinInTwo = Object.keys(forceWinInTwo).filter (k) -> forceWinInTwo[k] > 1
     blockWinInTwo = Object.keys(blockWinInTwo).filter (k) -> blockWinInTwo[k] > 1
 
@@ -151,6 +149,8 @@ class BoardCtrl
       blockLoss
     else if forceWinInTwo.length > 0
       forceWinInTwo
+    else if blockWinInTwo.length > 1
+      avoidSplit.filter (c) -> not (c in blockWinInTwo)
     else if blockWinInTwo.length > 0
       blockWinInTwo
     else []
