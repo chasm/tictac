@@ -178,7 +178,7 @@
         cell = cells[_i];
         _results.push(jQuery("#cell-" + cell).css({
           backgroundColor: color
-        }).animate({
+        }).stop().animate({
           backgroundColor: "white"
         }, 2000));
       }

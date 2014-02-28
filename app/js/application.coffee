@@ -124,7 +124,7 @@ class BoardCtrl
     color = jQuery(".#{@player()}").css('color')
 
     for cell in cells
-      jQuery("#cell-#{cell}").css( backgroundColor: color ).animate backgroundColor: "white", 2000
+      jQuery("#cell-#{cell}").css( backgroundColor: color ).stop().animate backgroundColor: "white", 2000
 
   hintAtBestMoves: () =>
     winOnThisMove = []
