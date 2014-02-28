@@ -12,7 +12,7 @@
         <span class="tic">Tic</span><span class="tac">Tac</span><span class="toe">Toe</span>
       </h1>
     </header>
-    <main role="main" data-ng-controller="BoardCtrl">
+    <main role="main" data-ng-controller="BoardCtrl" data-ng-cloak="">
       <section id="gameboard" class="board">
         <div id="row-0" class="board-row">
           <div id="cell-0" data-index="0" data-ng-click="mark($event)"
@@ -46,7 +46,7 @@
         <p>Tie game!</p>
       </section>
       <section id="current-player" class="{{currentPlayer}} current-player" data-ng-show="gameOn">
-        {{currentPlayer.toUpperCase()}} plays now
+        {{currentPlayer.toUpperCase()}} moves
       </section>
       <section id="control-button" class="button" data-ng-hide="gameOn">
         <button id="start-game" class="game-control" data-ng-click="startGame()">Play Game</button>
