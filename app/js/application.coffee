@@ -65,7 +65,7 @@ class BoardCtrl
     if moves % 2 == 0 then 'x' else 'o'
 
   isMixedRow: (row) ->
-    !!row.match(/ox\d|o\dx|\dox|xo\d|x\do|\dxo|xxo|xox|oxx|oox|oxo|xoo/i)
+    !!row.match(/o+\d?x+|x+\d?o+/i)
 
   hasOneX: (row) ->
     !!row.match(/x\d\d|\dx\d|\d\dx/i)
@@ -85,8 +85,11 @@ class BoardCtrl
   gameUnwinnable: =>
     @patternsToTest.length < 1
 
-  announceWinner: =>
+  announceWinner: (winners) =>
     winner = @player(whoMovedLast: true)
+    @$scope.winCell = {}
+    for cell in [0,1,2,3,4,5,6,7,8]
+      @$scope.winCell[cell] = if cell in winners then 'win' else 'unwin'
     @$scope.theWinnerIs = winner
     @$scope.gameOn = false
 
@@ -107,11 +110,11 @@ class BoardCtrl
 
     @patternsToTest = @patternsToTest.filter (pattern) =>
       row = @getRow(pattern)
-      won ||= @someoneWon(row)
+      won ||= pattern if @someoneWon(row)
       @rowStillWinnable(row)
 
     if won
-      @announceWinner()
+      @announceWinner(won)
     else if @gameUnwinnable()
       @announceTie()
 

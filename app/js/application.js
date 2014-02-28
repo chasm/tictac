@@ -2,7 +2,8 @@
 (function() {
   "use strict";
   var BoardCtrl,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   this.ticTacToe = angular.module('TicTacToe', []);
 
@@ -94,7 +95,7 @@
     };
 
     BoardCtrl.prototype.isMixedRow = function(row) {
-      return !!row.match(/ox\d|o\dx|\dox|xo\d|x\do|\dxo|xxo|xox|oxx|oox|oxo|xoo/i);
+      return !!row.match(/o+\d?x+|x+\d?o+/i);
     };
 
     BoardCtrl.prototype.hasOneX = function(row) {
@@ -121,11 +122,17 @@
       return this.patternsToTest.length < 1;
     };
 
-    BoardCtrl.prototype.announceWinner = function() {
-      var winner;
+    BoardCtrl.prototype.announceWinner = function(winners) {
+      var cell, winner, _i, _len, _ref;
       winner = this.player({
         whoMovedLast: true
       });
+      this.$scope.winCell = {};
+      _ref = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        cell = _ref[_i];
+        this.$scope.winCell[cell] = __indexOf.call(winners, cell) >= 0 ? 'win' : 'unwin';
+      }
       this.$scope.theWinnerIs = winner;
       return this.$scope.gameOn = false;
     };
@@ -146,12 +153,14 @@
         return function(pattern) {
           var row;
           row = _this.getRow(pattern);
-          won || (won = _this.someoneWon(row));
+          if (_this.someoneWon(row)) {
+            won || (won = pattern);
+          }
           return _this.rowStillWinnable(row);
         };
       })(this));
       if (won) {
-        return this.announceWinner();
+        return this.announceWinner(won);
       } else if (this.gameUnwinnable()) {
         return this.announceTie();
       }
