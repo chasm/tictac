@@ -1,6 +1,6 @@
 "use strict"
 
-@ticTacToe = angular.module 'TicTacToe', []
+@ticTacToe = angular.module 'TicTacToe', ["firebase"]
 
 ticTacToe.constant 'WIN_PATTERNS',
   [
@@ -15,13 +15,21 @@ ticTacToe.constant 'WIN_PATTERNS',
   ]
 
 class BoardCtrl
-  constructor: (@$scope, @WIN_PATTERNS) ->
+  constructor: (@$scope, @WIN_PATTERNS, @$firebase) ->
     @resetBoard()
     @$scope.mark = @mark
     @$scope.startGame = @startGame
     @$scope.gameOn = false
+    @dbRef = new Firebase "https://munat.firebaseio.com/"
+    @db = @$firebase @dbRef
+
+  uniqueId: (length=8) ->
+    id = ""
+    id += Math.random().toString(36).substr(2) while id.length < length
+    id.substr 0, length
 
   startGame: =>
+    @db.$add game: @uniqueId()
     @$scope.gameOn = true
     @resetBoard()
 
@@ -125,5 +133,5 @@ class BoardCtrl
       @$scope.currentPlayer = @player()
 
 
-BoardCtrl.$inject = ["$scope", "WIN_PATTERNS"]
+BoardCtrl.$inject = ["$scope", "WIN_PATTERNS", "$firebase"]
 ticTacToe.controller "BoardCtrl", BoardCtrl
