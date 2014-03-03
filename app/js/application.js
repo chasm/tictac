@@ -31,8 +31,6 @@
       this.$scope.mark = this.mark;
       this.$scope.startGame = this.startGame;
       this.$scope.gameOn = false;
-      this.dbRef = new Firebase("https://munat.firebaseio.com/");
-      this.db = this.$firebase(this.dbRef);
     }
 
     BoardCtrl.prototype.uniqueId = function(length) {
@@ -48,9 +46,6 @@
     };
 
     BoardCtrl.prototype.startGame = function() {
-      this.db.$add({
-        game: this.uniqueId()
-      });
       this.$scope.gameOn = true;
       return this.resetBoard();
     };
@@ -79,6 +74,9 @@
       this.$scope.cats = false;
       this.cells = this.$scope.cells = {};
       this.winningCells = this.$scope.winningCells = {};
+      this.id = this.uniqueId();
+      this.dbRef = new Firebase("https://munat.firebaseio.com/" + this.id);
+      this.db = this.$firebase(this.dbRef);
       this.$scope.currentPlayer = this.player();
       return this.getPatterns();
     };
@@ -187,6 +185,9 @@
       cell = this.$event.target.dataset.index;
       if (this.$scope.gameOn && !this.cells[cell]) {
         this.cells[cell] = this.player();
+        this.db.$set({
+          board: this.cells
+        });
         this.parseBoard();
         return this.$scope.currentPlayer = this.player();
       }
